@@ -1,6 +1,24 @@
 {
-  "originHash" : "13c35efc75620a787e1720a04ae6a7f955fd8444ffcba23ac99fa8972b4324b7",
+  "originHash" : "1f559f617b05e62146580035cb2da8af595fe0fd526409761d6cc46f90adab1b",
   "pins" : [
+    {
+      "identity" : "ansi",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/leviouwendijk/ANSI",
+      "state" : {
+        "branch" : "master",
+        "revision" : "073d9ca7870b688a312608acf14eae6ba052c0d6"
+      }
+    },
+    {
+      "identity" : "difference",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/leviouwendijk/Difference.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "395508c460782f6ec334c842eaef3856a628874b"
+      }
+    },
     {
       "identity" : "milieu",
       "kind" : "remoteSourceControl",
@@ -25,7 +43,7 @@
       "location" : "https://github.com/leviouwendijk/Writers.git",
       "state" : {
         "branch" : "master",
-        "revision" : "6084ab52b34ab2433000ad865cfa13bd6fe3b804"
+        "revision" : "af830559aef8032edccf0e80623a2ed6e1a575f7"
       }
     }
   ],

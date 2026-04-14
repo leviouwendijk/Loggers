@@ -5,5 +5,5 @@ public enum StandardLoggerWriteMode: Sendable {
     case append
 
     /// Truncate the file at startup, but use SafeFile to make backups according to options.
-    case reset(options: SafeWriteOptions = SafeWriteOptions.overwite)
+    case reset(options: WriteOptions = .overwrite)
 }
