@@ -18,4 +18,6 @@ public enum LogLevel: String, Loggable {
     public var label: String {
         return self.rawValue.uppercased()
     }
+
+    public static let warning: LogLevel = .warn 
 }
