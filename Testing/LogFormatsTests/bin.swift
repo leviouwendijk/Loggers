@@ -30,6 +30,7 @@ enum LogFormatsTestSuite {
         invariantFlow
         priorityFlow
         unifiCEFFlow
+        unifiRealFlow
         cefGrammarFlow
         rfc3164Flow
         rfc5424Flow

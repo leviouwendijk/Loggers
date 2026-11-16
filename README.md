@@ -42,7 +42,7 @@ The parsers use the same predicates the invariants check (`CEFRecord.isKeyStart`
 |---|---|---|
 | `unstructured` | `CEF:…` directly after PRI | no envelope |
 | `rfc5424` | `1 TIMESTAMP HOSTNAME APP-NAME PROCID MSGID SD MSG` | `-` means nil; SD `[id k="v" …]` with `\"`, `\\`, `\]` escapes; leading BOM removed; invalid SD falls back to `unstructured` |
-| `rfc3164` | `Mmm dd hh:mm:ss HOSTNAME TAG[PID]: MSG` | day may be space-padded; text starting with `CEF:` after the hostname is the body, not a tag (UniFi's format) |
+| `rfc3164` | `Mmm dd hh:mm:ss HOSTNAME TAG[PID]: MSG` | day may be space-padded; PRI is optional (UniFi sends none). If a CEF record (`CEF:<digits>|` at a word boundary) follows on the line, everything between the timestamp and it is the hostname, spaces included (UniFi Protect uses the display name, e.g. `Dream Machine Special Edition`), and the record is the body |
 | `unstructured` | anything else | whole text is the body |
 
 **Payload:**
@@ -54,7 +54,7 @@ The parsers use the same predicates the invariants check (`CEFRecord.isKeyStart`
 | `keyValues` | `KEY=value` / `KEY="quoted"` pairs | ordered `KeyValuePair`s (iptables-style `DESCR=… SRC=… DPT=…`) |
 | `text` | otherwise | — |
 
-**CEF:** the header is `CEF:Version|Vendor|Product|DeviceVersion|EventClassID|Name|Severity|`, with `\|` and `\\` escapes. In the extension, a value runs until the next ` key=`, so values can contain spaces (`UNIFIhost=Office UDM Pro`). Extension escapes are `\=`, `\\`, `\n` and `\r`; other backslashes are kept. Duplicate keys keep their order, and lookup returns the last.
+**CEF:** the header is `CEF:Version|Vendor|Product|DeviceVersion|EventClassID|Name|Severity|`, with `\|` and `\\` escapes. In the extension, a value runs until the next ` key=`, so values can contain spaces (`UNIFIhost=Office UDM Pro`). Extension escapes are `\=`, `\\`, `\n` and `\r`; other backslashes are kept. A value wrapped in double quotes (UniFi Protect sends `msg="…"`) has the quotes removed. Duplicate keys keep their order, and lookup returns the last.
 
 ## Stored entry (`LogCollection.LogEntry`)
 

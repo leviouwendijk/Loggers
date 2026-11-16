@@ -130,15 +130,24 @@ public enum SyslogParser {
             return nil
         }
         scanner.skipSpaces()
-        if scanner.peekLiteral("CEF:") {
-            return message(priority, .rfc3164, timestamp: timestamp, body: scanner.remainder)
+
+        // UniFi sends CEF right after the hostname, and the hostname can be the device's
+        // display name with spaces ("Dream Machine Special Edition", as UniFi Protect does).
+        // So when a CEF record starts later on the line, everything before it is the hostname.
+        let rest = scanner.remainder
+        if let cefStart = cefRecordStart(in: rest) {
+            let host = rest[rest.startIndex..<cefStart].trimmingCharacters(in: .whitespaces)
+            return message(
+                priority,
+                .rfc3164,
+                timestamp: timestamp,
+                hostname: host.isEmpty ? nil : host,
+                body: String(rest[cefStart...])
+            )
         }
+
         let hostname = scanner.token()
         scanner.skipSpaces()
-
-        if scanner.peekLiteral("CEF:") {
-            return message(priority, .rfc3164, timestamp: timestamp, hostname: hostname, body: scanner.remainder)
-        }
 
         // TAG: up to 48 characters of [A-Za-z0-9_.-/], optionally "[pid]", then ":".
         let tagStart = scanner.mark()
@@ -194,6 +203,21 @@ public enum SyslogParser {
         return "\(month) \(paddedDay) \(time)"
     }
 
+    /// The first `CEF:<digits>|` at the start of `text` or after a space.
+    static func cefRecordStart(in text: String) -> String.Index? {
+        var searchFrom = text.startIndex
+        while let range = text.range(of: "CEF:", range: searchFrom..<text.endIndex) {
+            let atBoundary = range.lowerBound == text.startIndex || text[text.index(before: range.lowerBound)] == " "
+            let digits = text[range.upperBound...].prefix { $0.isASCII && $0.isNumber }
+            let afterDigits = text.index(range.upperBound, offsetBy: digits.count)
+            if atBoundary, !digits.isEmpty, afterDigits < text.endIndex, text[afterDigits] == "|" {
+                return range.lowerBound
+            }
+            searchFrom = range.upperBound
+        }
+        return nil
+    }
+
     // MARK: payload
 
     /// Interprets a body as CEF, key=value pairs, or text.
@@ -234,7 +258,8 @@ public enum SyslogParser {
 
 /// Parses CEF records. Header fields unescape `\|` and `\\`; extension values unescape
 /// `\=`, `\\`, `\n` and `\r`. An extension value runs until the next ` key=` boundary,
-/// so values may contain spaces (`UNIFIhost=Office UDM Pro`). Key boundaries use
+/// so values may contain spaces (`UNIFIhost=Office UDM Pro`). A value wrapped in double quotes
+/// (as UniFi Protect sends some) has the quotes removed. Key boundaries use
 /// ``CEFRecord/isKeyStart(_:)`` and ``CEFRecord/isKeyCharacter(_:)``, the same rules the
 /// record's invariant checks.
 public enum CEFParser {
@@ -306,6 +331,11 @@ public enum CEFParser {
             let end = position + 1 < boundaries.count ? boundaries[position + 1].keyStart : characters.count
             var raw = Array(characters[boundary.valueStart..<end])
             while raw.last == " " { raw.removeLast() }
+            // UniFi Protect quotes some values (msg="G6 Turret detected …"); plain CEF does not.
+            if raw.count >= 2, raw.first == "\"", raw.last == "\"" {
+                raw.removeFirst()
+                raw.removeLast()
+            }
             return try? KeyValuePair(key, unescape(raw))
         }
     }
