@@ -149,16 +149,16 @@ public actor StandardLogger {
             _ = try safe.write(Data(), options: options)
         }
 
-        // let fh = try FileHandle(forWritingTo: url)
-        // fh.seekToEndOfFile()
-        // return fh
-        do {
-            let fh = try FileHandle(forWritingTo: url)
-            fh.seekToEndOfFile()
-            return fh
-        } catch {
+        // O_APPEND: every write lands at the current end of the file. Several
+        // processes share one log (server/activity-*.log); with a seek-once
+        // handle each wrote at its own stale offset and overwrote the others.
+        // It also lets an external job truncate the file to rotate it.
+        let descriptor = open(url.path, O_WRONLY | O_APPEND)
+        guard descriptor >= 0 else {
             throw StandardLoggerError.failedToOpenLogFile(url.path)
         }
+
+        return FileHandle(fileDescriptor: descriptor, closeOnDealloc: true)
     }
 
     public func setLevel(to level: LogLevel) {

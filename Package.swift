@@ -32,6 +32,10 @@ let package = Package(
             name: "t_log_formats",
             targets: ["LogFormatsTests"]
         ),
+        .executable(
+            name: "t_standard_logger",
+            targets: ["StandardLoggerTests"]
+        ),
     ],
     dependencies: [
         .package(url: "https://github.com/leviouwendijk/Milieu.git", branch: "master"),
@@ -76,6 +80,14 @@ let package = Package(
                 .product(name: "Testing", package: "Testing"),
             ],
             path: "Testing/LogFormatsTests"
+        ),
+        .executableTarget(
+            name: "StandardLoggerTests",
+            dependencies: [
+                "Loggers",
+                .product(name: "Testing", package: "Testing"),
+            ],
+            path: "Testing/StandardLoggerTests"
         ),
         .testTarget(
             name: "LoggersTests",
