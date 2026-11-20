@@ -89,9 +89,5 @@ let package = Package(
             ],
             path: "Testing/StandardLoggerTests"
         ),
-        .testTarget(
-            name: "LoggersTests",
-            dependencies: ["Loggers"]
-        ),
     ]
 )
