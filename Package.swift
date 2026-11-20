@@ -28,20 +28,11 @@ let package = Package(
             name: "LogCollection",
             targets: ["LogCollection"]
         ),
-        .executable(
-            name: "t_log_formats",
-            targets: ["LogFormatsTests"]
-        ),
-        .executable(
-            name: "t_standard_logger",
-            targets: ["StandardLoggerTests"]
-        ),
     ],
     dependencies: [
         .package(url: "https://github.com/leviouwendijk/Milieu.git", branch: "master"),
         .package(url: "https://github.com/leviouwendijk/Writers.git", branch: "master"),
         .package(url: "https://github.com/leviouwendijk/Primitives.git", branch: "master"),
-        .package(url: "https://github.com/leviouwendijk/Testing.git", branch: "master"),
     ],
     targets: [
         .target(
@@ -69,25 +60,6 @@ let package = Package(
                 "LogFormats",
                 .product(name: "Primitives", package: "Primitives"),
             ]
-        ),
-        .executableTarget(
-            name: "LogFormatsTests",
-            dependencies: [
-                "LogFormats",
-                "LogFormatsParsing",
-                "LogCollection",
-                .product(name: "Primitives", package: "Primitives"),
-                .product(name: "Testing", package: "Testing"),
-            ],
-            path: "Testing/LogFormatsTests"
-        ),
-        .executableTarget(
-            name: "StandardLoggerTests",
-            dependencies: [
-                "Loggers",
-                .product(name: "Testing", package: "Testing"),
-            ],
-            path: "Testing/StandardLoggerTests"
         ),
     ]
 )
